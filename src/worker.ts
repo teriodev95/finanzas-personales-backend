@@ -11,8 +11,31 @@ import categoriasRoutes from './routes/categorias'
 import transaccionesRoutes from './routes/transacciones'
 import reportesRoutes from './routes/reportes'
 import { makeError } from './utils/responses'
+import { initializeDb } from './db'
 
-const app = new Hono()
+type Bindings = {
+  DATABASE_URL: string
+  DATABASE_AUTH_TOKEN: string
+  JWT_SECRET: string
+}
+
+const app = new Hono<{ Bindings: Bindings }>()
+
+// Middleware de inicialización de base de datos para Workers
+app.use('*', async (c, next) => {
+  try {
+    // Inicializar la base de datos con las variables de entorno de Workers
+    if (c.env && c.env.DATABASE_URL && c.env.DATABASE_AUTH_TOKEN) {
+      initializeDb({
+        DATABASE_URL: c.env.DATABASE_URL,
+        DATABASE_AUTH_TOKEN: c.env.DATABASE_AUTH_TOKEN
+      })
+    }
+  } catch (error) {
+    console.warn('Database initialization warning:', error)
+  }
+  await next()
+})
 
 app.use('*', logger())
 app.use('*', prettyJSON())
