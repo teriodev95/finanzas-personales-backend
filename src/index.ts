@@ -25,7 +25,7 @@ app.use('*', cors({
 app.get('/', (c) => {
   return c.json({
     message: '🧾 Finanzas Personales API',
-    version: '1.1.0',
+    version: '1.2.0',
     documentation: {
       interactive: '/docs',
       openapi_spec: '/doc'
@@ -62,7 +62,7 @@ app.get('/doc', (c) => {
     openapi: '3.0.0',
     info: {
       title: '🧾 Finanzas Personales API',
-      version: '1.1.0',
+      version: '1.2.0',
       description: 'API REST para sistema de finanzas personales con autenticación JWT, control de permisos y reportes avanzados.',
       contact: {
         name: 'TerioDev',
