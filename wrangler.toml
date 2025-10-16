@@ -1,0 +1,22 @@
+name = "finanzas-personales-backend"
+main = "dist/worker.js"
+compatibility_date = "2025-10-16"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "finanzas-personales-backend-prod"
+
+[env.development]
+name = "finanzas-personales-backend-dev"
+
+# Variables de entorno (sin valores sensibles)
+[vars]
+NODE_ENV = "production"
+
+# Para desarrollo local
+[[env.development.vars]]
+
+# Las variables sensibles se configuran desde el dashboard de Cloudflare:
+# DATABASE_URL
+# DATABASE_AUTH_TOKEN
+# JWT_SECRET

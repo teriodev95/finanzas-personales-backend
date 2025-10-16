@@ -5,12 +5,14 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "build": "bun build src/index.ts --outdir dist",
+    "build": "bun build src/worker.ts --outdir dist",
+    "build:local": "bun build src/index.ts --outdir dist",
     "start": "bun run dist/index.js",
     "db:push": "bunx drizzle-kit push",
     "db:generate": "bunx drizzle-kit generate",
     "db:migrate": "bunx drizzle-kit migrate",
-    "db:seed": "bun run src/db/seed.ts"
+    "db:seed": "bun run src/db/seed.ts",
+    "deploy": "bunx wrangler deploy"
   },
   "keywords": ["hono", "turso", "drizzle", "finanzas", "api"],
   "author": "TerioDev",
