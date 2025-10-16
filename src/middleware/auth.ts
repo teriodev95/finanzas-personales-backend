@@ -1,6 +1,6 @@
 import { Context, Next } from 'hono'
 import { verify } from 'jsonwebtoken'
-import { db } from '../db'
+import { db, getDb } from '../db'
 import { usuarios } from '../db/schema'
 import { eq } from 'drizzle-orm'
 import { UnauthorizedError } from '../utils/errors'
@@ -23,13 +23,15 @@ export const authenticateJWT = async (c: Context, next: Next) => {
 
     const token = authHeader.substring(7)
 
-    if (!process.env.JWT_SECRET) {
+    const jwtSecret = process.env.JWT_SECRET || (c.env as any)?.JWT_SECRET
+    if (!jwtSecret) {
       throw new Error('JWT_SECRET no configurado')
     }
 
-    const decoded = verify(token, process.env.JWT_SECRET) as JWTPayload
+    const decoded = verify(token, jwtSecret) as JWTPayload
 
-    const user = await db.select().from(usuarios).where(eq(usuarios.id, decoded.usuario_id)).limit(1)
+    const database = getDb()
+    const user = await database.select().from(usuarios).where(eq(usuarios.id, decoded.usuario_id)).limit(1)
 
     if (!user.length || !user[0].activo) {
       return c.json(makeError('ERR_UNAUTHORIZED', 'Usuario no válido o inactivo'), 401)

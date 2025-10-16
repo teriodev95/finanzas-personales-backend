@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { compare } from 'bcryptjs'
 import { sign } from 'jsonwebtoken'
 import { z } from 'zod'
-import { db } from '../db'
+import { db, getDb } from '../db'
 import { usuarios, cuentasMaestras } from '../db/schema'
 import { eq, and } from 'drizzle-orm'
 import { successResponse, makeError } from '../utils/responses'
@@ -11,8 +11,7 @@ const auth = new Hono()
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
-  password: z.string().min(1, 'Contraseña requerida'),
-  cuenta_maestra_id: z.string().min(1, 'ID de cuenta maestra requerido')
+  password: z.string().min(1, 'Contraseña requerida')
 })
 
 auth.post('/login', async (c) => {
@@ -20,7 +19,8 @@ auth.post('/login', async (c) => {
     const body = await c.req.json()
     const validatedData = loginSchema.parse(body)
 
-    const user = await db
+    const database = getDb()
+    const user = await database
       .select({
         id: usuarios.id,
         email: usuarios.email,
@@ -37,7 +37,6 @@ auth.post('/login', async (c) => {
       .where(
         and(
           eq(usuarios.email, validatedData.email),
-          eq(usuarios.cuentaMaestraId, validatedData.cuenta_maestra_id),
           eq(usuarios.activo, true),
           eq(cuentasMaestras.activa, true)
         )
@@ -55,7 +54,8 @@ auth.post('/login', async (c) => {
       return c.json(makeError('ERR_UNAUTHORIZED', 'Credenciales inválidas'), 401)
     }
 
-    if (!process.env.JWT_SECRET) {
+    const jwtSecret = process.env.JWT_SECRET || c.env?.JWT_SECRET
+    if (!jwtSecret) {
       throw new Error('JWT_SECRET no configurado')
     }
 
@@ -66,7 +66,7 @@ auth.post('/login', async (c) => {
         tipo_permiso: userData.tipoPermiso,
         email: userData.email
       },
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: '24h' }
     )
 

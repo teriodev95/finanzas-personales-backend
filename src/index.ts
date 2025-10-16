@@ -107,11 +107,10 @@ app.get('/doc', (c) => {
               'application/json': {
                 schema: {
                   type: 'object',
-                  required: ['email', 'password', 'cuenta_maestra_id'],
+                  required: ['email', 'password'],
                   properties: {
                     email: { type: 'string', format: 'email' },
-                    password: { type: 'string' },
-                    cuenta_maestra_id: { type: 'string' }
+                    password: { type: 'string' }
                   }
                 }
               }
